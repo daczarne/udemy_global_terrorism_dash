@@ -130,7 +130,7 @@ app.layout = html.Div(
               value = [2010, 2017]
 						)
           ],
-          className = "create_containter three columns"
+          className = "create_container three columns"
         ),
         # (Column two) Bars and line chart
         html.Div(
