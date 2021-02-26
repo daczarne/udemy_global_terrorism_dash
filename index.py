@@ -9,6 +9,9 @@ import pandas as pd
 # Load data
 terr2 = pd.read_csv("data/global_terrorism.csv")
 
+terr2_list = terr2[["country_txt", "latitude", "longitude"]]
+dict_of_locations = terr2_list.set_index("country_txt")[["latitude", "longitude"]].T.to_dict("dict")
+
 # Instanciate the app
 app = dash.Dash(__name__, meta_tags = [{"name": "viewport", "content": "width=device-width"}])
 
@@ -53,7 +56,22 @@ app.layout = html.Div(
       }
     ),
     # (Second Row): Map
-    
+    html.Div(
+      [
+        html.Div(
+          [
+            dcc.Graph(
+              id = "map_chart",
+              config = {
+                "displayModeBar": "hover"
+              }
+            )
+          ],
+          className = "create_container twelve columns"
+        )
+      ],
+      className = "row flex-display"
+    ),
     # (Third Row): Plots
     html.Div(
       [
@@ -471,6 +489,92 @@ def update_country(w_countries, w_countries1, selected_years):
     )
   }
   # Return list and value
+  return fig
+
+# Update map
+@app.callback(
+  Output(
+    component_id = "map_chart",
+    component_property = "figure"
+  ),
+  Input(
+    component_id = "w_countries",
+    component_property = "value"
+  ),
+  Input(
+    component_id = "w_countries1",
+    component_property = "value"
+  ),
+  Input(
+    component_id = "select_years",
+    component_property = "value"
+  )
+)
+def update_map(w_countries, w_countries1, selected_years):
+  terr2[["nkill", "nwound", "attacktype1"]] = terr2[["nkill", "nwound", "attacktype1"]].fillna(0)
+  terr8 = terr2.groupby(["region_txt", "country_txt", "provstate", "city", "iyear", "latitude", "longitude"])[["nkill", "nwound", "attacktype1"]].sum().reset_index()
+  terr9 = terr8[
+    (terr8["region_txt"] == w_countries) &
+    (terr8["country_txt"] == w_countries1) &
+    (terr8["iyear"] >= selected_years[0]) &
+    (terr8["iyear"] <= selected_years[1])
+  ]
+  # Set zoom
+  if w_countries1:
+    zoom = 3
+    zoom_lat = dict_of_locations[w_countries1]["latitude"]
+    zoom_long = dict_of_locations[w_countries1]["longitude"]
+  # Build the figure
+  fig = {
+		"data": [
+			go.Scattermapbox(
+				lon = terr9["longitude"],
+				lat = terr9["latitude"],
+				mode = "markers",
+				marker = go.scattermapbox.Marker(
+					size = terr9["nwound"],
+					color = terr9["nwound"],
+					colorscale = "HSV",
+					showscale = False,
+					sizemode = "area",
+					opacity = 0.3
+				),
+				hoverinfo = "text",
+				hovertemplate =
+        "<b>Region:</b> " + terr9["region_txt"].astype(str) + "<br>" +
+        "<b>Country:</b> " + terr9["country_txt"].astype(str) + "<br>" +
+        "<b>Provice/State:</b> " + terr9["provstate"].astype(str) + "<br>" +
+        "<b>City:</b> " + terr9["city"].astype(str) + "<br>" +
+        "<b>Year:</b> " + terr9["iyear"].astype(str) + "<br>" + 
+        "<b>Death:</b> " + [f"{x:,.0f}" for x in terr9["nkill"]] + "<br>" +
+        "<b>Injured:</b> " + [f"{x:,.0f}" for x in terr9["nwound"]] + "<br>" +
+        "<b>Attack:</b> " + [f"{x:,.0f}" for x in terr9["attacktype1"]] + "<br>" +
+        "<extra></extra>"
+			)
+		],
+		"layout": go.Layout(
+			hovermode = "x",
+			paper_bgcolor = "#010915",
+			plot_bgcolor = "#010915",
+			margin = {
+				"r": 0,
+				"l": 0,
+				"t": 0,
+				"b": 0
+			},
+			mapbox = dict(
+				accesstoken = "pk.eyJ1IjoicXM2MjcyNTI3IiwiYSI6ImNraGRuYTF1azAxZmIycWs0cDB1NmY1ZjYifQ.I1VJ3KjeM-S613FLv3mtkw",
+				center = go.layout.mapbox.Center(
+					lat = zoom_lat,
+					lon = zoom_long
+				),
+				style = "dark",
+				zoom = zoom
+			),
+			autosize = True
+		)
+	}
+	# Return the figure
   return fig
 
 
