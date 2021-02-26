@@ -125,6 +125,18 @@ app.layout = html.Div(
             )
           ],
           className = "create_container six columns"
+        ),
+        # (Column three) Pie chart
+        html.Div(
+          [
+            dcc.Graph(
+              id = "pie_chart",
+              config = {
+                "displayModeBar": "hover"
+              }
+            )
+          ],
+          className = "create_container three columns"
         )
       ],
       className = "row flex-display"
@@ -266,6 +278,136 @@ def update_country(w_countries, w_countries1, selected_years):
       title = {
         "text": "Deaths, Injured, Attack in " + w_countries1 + "<br>" +
                 " - ".join([str(y) for y in selected_years]) + "<br>",
+        "x": 0.5,
+        "y": 0.93,
+        "xanchor": "center",
+        "yanchor": "top"
+      },
+      titlefont = {
+        "color": "white",
+        "size": 20
+      },
+      font = {
+        "family": "sans-serif",
+        "color": "white",
+        "size": 12
+      },
+      hovermode = "closest",
+      paper_bgcolor = "#010915",
+      plot_bgcolor = "#010915",
+      legend = {
+        "orientation": "h",
+        "bgcolor": "#010915",
+        "xanchor": "center",
+        "x": 0.5,
+        "y": -0.7
+      },
+      margin = {
+        "r": 0
+      },
+      xaxis = {
+        "title": "<b>Year</b>",
+        "color": "white",
+        "showline": True,
+        "showgrid": True,
+        "showticklabels": True,
+        "linecolor": "white",
+        "linewidth": 1,
+        "ticks": "outside",
+        "tick0": 0,
+        "dtick": 1,
+        "tickfont": {
+          "family": "Aerial",
+          "color": "white",
+          "size": 12
+        }
+      },
+      yaxis = {
+        "title": "<b>Deaths, Injured, Attack</b>",
+        "color": "white",
+        "showline": True,
+        "showgrid": True,
+        "showticklabels": True,
+        "linecolor": "white",
+        "linewidth": 1,
+        "ticks": "outside",
+        "tickfont": {
+          "family": "Aerial",
+          "color": "white",
+          "size": 12
+        }
+      },
+      barmode = "stack"
+    )
+  }
+  # Return list and value
+  return fig
+
+
+# Update pie chart
+@app.callback(
+  Output(
+    component_id = "pie_chart",
+    component_property = "figure"
+  ),
+  Input(
+    component_id = "w_countries",
+    component_property = "value"
+  ),
+  Input(
+    component_id = "w_countries1",
+    component_property = "value"
+  ),
+  Input(
+    component_id = "select_years",
+    component_property = "value"
+  )
+)
+def update_country(w_countries, w_countries1, selected_years):
+  terr2[["nkill", "nwound", "attacktype1"]] = terr2[["nkill", "nwound", "attacktype1"]].fillna(0)
+  terr7 = terr2.groupby(["region_txt", "country_txt", "iyear"])[["nkill", "nwound", "attacktype1"]].sum().reset_index()
+  # Get deaths
+  deaths = terr7[
+    (terr7["region_txt"] == w_countries) &
+    (terr7["country_txt"] == w_countries1) &
+    (terr7["iyear"] >= selected_years[0]) &
+    (terr7["iyear"] <= selected_years[1])
+  ]["nkill"].sum()
+  # Get injured
+  injured = terr7[
+    (terr7["region_txt"] == w_countries) &
+    (terr7["country_txt"] == w_countries1) &
+    (terr7["iyear"] >= selected_years[0]) &
+    (terr7["iyear"] <= selected_years[1])
+  ]["nwound"].sum()
+  # Get attack
+  attack = terr7[
+    (terr7["region_txt"] == w_countries) &
+    (terr7["country_txt"] == w_countries1) &
+    (terr7["iyear"] >= selected_years[0]) &
+    (terr7["iyear"] <= selected_years[1])
+  ]["attacktype1"].sum()
+  # Colors
+  colors = ["#ff00ff", "#9c0c38", "orange"]
+  # Build fig
+  fig = {
+    "data": [
+      go.Pie(
+				labels = ["Total deaths", "Total injured", "Total attacks"],
+				values = [deaths, injured, attack],
+				marker = {
+					"colors": colors
+				},
+				hoverinfo = "label+value+percent",
+				textinfo = "label+value",
+				rotation = 45,
+				insidetextorientation = "radial"
+			)
+    ],
+    "layout": go.Layout(
+      title = {
+        "text": "Deaths, Injured, Attack in " + w_countries1 + "<br>" +
+                " - ".join([str(y) for y in selected_years]),
         "x": 0.5,
         "y": 0.93,
         "xanchor": "center",
