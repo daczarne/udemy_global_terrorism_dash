@@ -92,6 +92,22 @@ app.layout = html.Div(
 							placeholder = "Select Country",
 							options = [],
 							className = "dcc_compon"
+						),
+            # Title for range slider
+            html.P(
+              children = "Select Years",
+              className = "fix_label",
+              style = {
+                "color": "white"
+              }
+            ),
+            # Range slider
+            dcc.RangeSlider(
+							id = "select_years",
+              min = terr2["iyear"].min(),
+              max = terr2["iyear"].max(),
+              dots = False,
+              value = [2010, 2017]
 						)
           ],
           className = "create_containter three columns"
