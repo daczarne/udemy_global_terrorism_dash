@@ -75,8 +75,24 @@ app.layout = html.Div(
 							placeholder = "Select Region",
 							options = [{"label": c, "value": c} for c in (terr2["region_txt"].unique())],
 							className = "dcc_compon"
-						)
+						),
             # Title for second dropdown
+            html.P(
+              children = "Select Country",
+              className = "fix_label",
+              style = {
+                "color": "white"
+              }
+            ),
+            # First dropdown
+            dcc.Dropdown(
+							id = "w_countries1",
+							multi = False,
+							searchable = True,
+							placeholder = "Select Country",
+							options = [],
+							className = "dcc_compon"
+						)
           ],
           className = "create_containter three columns"
         )
@@ -93,6 +109,27 @@ app.layout = html.Div(
 
 
 # Build callbacks
+@app.callback(
+  Output(
+    component_id = "w_countries1",
+    component_property = "options"
+  ),
+  Output(
+    component_id = "w_countries1",
+    component_property = "value"
+  ),
+  Input(
+    component_id = "w_countries",
+    component_property = "value"
+  )
+)
+def update_country(w_countries):
+  # Filter the region
+  terr3 = terr2[terr2["region_txt"] == w_countries]
+  # Build list of countries
+  list_of_countries = [{"label": i, "value": i} for i in terr3["country_txt"].unique()]
+  # Return list and value
+  return list_of_countries, list_of_countries[0]["value"]
 
 
 # Run the app
