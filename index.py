@@ -17,69 +17,69 @@ app = dash.Dash(__name__, meta_tags = [{"name": "viewport", "content": "width=de
 
 # Build layout
 app.layout = html.Div(
-  [
-    # (First Row): Title
-    html.Div(
-      [
-        # (Column 1): Title
-        html.Div(
-          [
-            html.Div(
-              [
-                # Title
-                html.H3(
-                  children = "Global terrorism database",
-                  style = {
-                    "margin-bottom": "0px",
-                    "color": "white"
-                  }
-                ),
-                # Subtitle
-                html.H5(
-                  children = "1970 - 2017",
-                  style = {
-                    "margin-top": "0px",
-                    "color": "white"
-                  }
-                )
-              ]
-            )
-          ],
-          className = "six column",
-          id = "title"
-        )
-      ],
-      id = "header",
-      className = "row flex-display",
-      style = {
-        "margin-bottom": "25px"
-      }
-    ),
-    # (Second Row): Map
-    html.Div(
-      [
-        html.Div(
-          [
-            dcc.Graph(
-              id = "map_chart",
-              config = {
-                "displayModeBar": "hover"
-              }
-            )
-          ],
-          className = "create_container twelve columns"
-        )
-      ],
-      className = "row flex-display"
-    ),
-    # (Third Row): Plots
-    html.Div(
-      [
-        # (Column one) User inputs
-        html.Div(
-          [
-            # Title for first dropdown
-            html.P(
+	[
+		# (First Row): Title
+		html.Div(
+			[
+				# (Column 1): Title
+				html.Div(
+					[
+						html.Div(
+							[
+								# Title
+								html.H3(
+									children = "Global terrorism database",
+									style = {
+										"margin-bottom": "0px",
+										"color": "white"
+									}
+								),
+								# Subtitle
+								html.H5(
+									children = "1970 - 2017",
+									style = {
+										"margin-top": "0px",
+										"color": "white"
+									}
+								)
+							]
+						)
+					],
+					className = "six column",
+					id = "title"
+				)
+			],
+			id = "header",
+			className = "row flex-display",
+			style = {
+				"margin-bottom": "25px"
+			}
+		),
+		# (Second Row): Map
+		html.Div(
+			[
+				html.Div(
+					[
+						dcc.Graph(
+							id = "map_chart",
+							config = {
+								"displayModeBar": "hover"
+							}
+						)
+					],
+					className = "create_container twelve columns"
+				)
+			],
+			className = "row flex-display"
+		),
+		# (Third Row): Plots
+		html.Div(
+			[
+				# (Column one) User inputs
+				html.Div(
+					[
+						# Title for first dropdown
+						html.P(
               children = "Select Region",
               className = "fix_label",
               style = {
@@ -105,7 +105,7 @@ app.layout = html.Div(
               }
             ),
             # First dropdown
-            dcc.Dropdown(
+						dcc.Dropdown(
 							id = "w_countries1",
 							multi = False,
 							searchable = True,
