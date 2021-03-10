@@ -581,3 +581,4 @@ def update_map(w_countries, w_countries1, selected_years):
 # Run the app
 if __name__ == "__main__":
   app.run_server(debug = True)
+
